@@ -73,17 +73,20 @@ class UsuarioController extends Controller
         $request->validate([
             'picture' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
-
+    
         $usuario = $request->user();
         $path = $request->file('picture')->store('pictures', 'public');
-
-        $usuario->update(['picture' => $path]);
-
+    
+        $url = asset('storage/' . $path);
+    
+        $usuario->update(['picture' => $url]);
+    
         return response()->json([
             'message' => 'Foto enviada com sucesso.',
-            'picture_url' => asset('storage/' . $path)
+            'picture_url' => $url
         ]);
     }
+    
 
     public function desativarConta(Request $request)
     {

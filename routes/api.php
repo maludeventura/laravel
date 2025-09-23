@@ -32,6 +32,9 @@ use App\Http\Controllers\PostController;
     });
 });
 
+Route::middleware('auth:sanctum')->delete('posts/{post}', [PostController::class, 'destroy']);
+
+
 
 
 
