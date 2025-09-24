@@ -28,21 +28,31 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostRequest $request)
-    {
-        $dados = $request->validate([
-            'description' => 'required|string|max:255',
-            'picture' => 'nullable|string|max:255'
-        ]);
 
-        $post = Post::create([
-            'description' => $dados['description'],
-            'picture' => $dados['picture'] ?? '',
-            'data' => now()->format('Y-m-d H:i:s'),
-            'user_id' => $request->user()->id
-        ]); 
-        return response()->json(Post::with('user')->find($post->id), 201);
+public function store(StorePostRequest $request)
+{
+    $dados = $request->validate([
+        'description' => 'required|string',
+        'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:5120'
+    ]);
+
+    $data = [
+        'description' => $dados['description'],
+        'data' => now()->format('Y-m-d H:i:s'),
+        'user_id' => $request->user()->id
+    ];
+
+    if ($request->hasFile('picture')) {
+        $path = $request->file('picture')->store('posts', 'public');
+        $data['picture'] = asset('storage/' . $path);
+    } else {
+        $data['picture'] = '';
     }
+
+    $post = Post::create($data);
+
+    return response()->json(Post::with('user')->find($post->id), 201);
+}
 
     /**
      * Display the specified resource.
