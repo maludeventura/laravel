@@ -68,24 +68,37 @@ class UsuarioController extends Controller
         return response()->json(['message' => 'Logout realizado com sucesso.']);
     }
 
-    public function fotoUpload(Request $request)
-    {
-        $request->validate([
-            'picture' => 'required|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
-    
-        $usuario = $request->user();
-        $path = $request->file('picture')->store('pictures', 'public');
-    
-        $url = asset('storage/' . $path);
-    
-        $usuario->update(['picture' => $url]);
-    
-        return response()->json([
-            'message' => 'Foto enviada com sucesso.',
-            'picture_url' => $url
-        ]);
+public function fotoUpload(Request $request)
+{
+    $request->validate([
+        'picture' => 'required|image|mimes:jpg,jpeg,png|max:5120' // 5MB
+    ]);
+
+    $usuario = $request->user();
+
+    if (!$request->hasFile('picture')) {
+        return response()->json(['message' => 'Nenhuma imagem enviada.'], 400);
     }
+
+    try {
+        $path = $request->file('picture')->store('pictures', 'public');
+        $url = asset('storage/' . $path); // ex: http://localhost:8000/storage/pictures/xxx.jpg
+
+        // salva no banco (agora sim)
+        $usuario->picture = $url;
+        $usuario->save();
+
+        return response()->json([
+            'message' => 'Foto enviada e salva com sucesso.',
+            'picture_url' => $url,
+            'user' => $usuario
+        ], 200);
+    } catch (\Exception $e) {
+        \Log::error('Erro no upload de foto: '.$e->getMessage());
+        return response()->json(['message' => 'Erro ao enviar a foto.'], 500);
+    }
+}
+
     
 
     public function desativarConta(Request $request)
