@@ -13,9 +13,15 @@ class PostController extends Controller
      */
     public function index()
     {
+
         return Post::with('user')->orderBy('created_at', 'desc')->get();
 
+
     }
+    public function likes()
+{
+    return $this->hasMany(Like::class);
+}
 
     /**
      * Show the form for creating a new resource.
