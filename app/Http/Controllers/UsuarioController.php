@@ -71,7 +71,7 @@ class UsuarioController extends Controller
 public function fotoUpload(Request $request)
 {
     $request->validate([
-        'picture' => 'required|image|mimes:jpg,jpeg,png|max:5120' // 5MB
+        'picture' => 'required|image|mimes:jpg,jpeg,png|max:5120' 
     ]);
 
     $usuario = $request->user();
@@ -82,9 +82,8 @@ public function fotoUpload(Request $request)
 
     try {
         $path = $request->file('picture')->store('pictures', 'public');
-        $url = asset('storage/' . $path); // ex: http://localhost:8000/storage/pictures/xxx.jpg
+        $url = asset('storage/' . $path); 
 
-        // salva no banco (agora sim)
         $usuario->picture = $url;
         $usuario->save();
 
